@@ -117,7 +117,9 @@ class RaceTrackEnv(gym.Env):
     info["keep_car_trace"] = self.keep_car_trace
 
     if not self.keep_car_trace:
-      self.current_observation[self.current_position] = self.track[self.current_position]
+      value = self.track[self.current_position]
+      self.current_observation[self.current_position] = value
+      self.observation_image[self.current_position[0], self.current_position[1]] = self.color_map[value]
 
     info["ignored_action"] = self.ignore_next_action
 
