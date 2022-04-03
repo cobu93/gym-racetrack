@@ -208,6 +208,12 @@ class RaceTrackEnv(gym.Env):
     self.current_observation = np.copy(self.track)
     self.current_observation[self.current_position] = RaceTrackEnv.CAR_CODE
     self.ignore_next_action = False
+
+    self.observation_image = np.zeros((*self.track.shape, 3), dtype=np.uint8)
+
+    for row_idx, row in enumerate(self.track):
+      for column_idx, value in enumerate(row):
+        self.observation_image[row_idx, column_idx] = self.color_map[value]
     
   def render(self, mode="human", close=False):
     car_indices = np.where(self.current_observation == RaceTrackEnv.CAR_CODE)
