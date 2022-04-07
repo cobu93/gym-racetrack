@@ -175,15 +175,15 @@ class RaceTrackEnv(gym.Env):
     # If out of track
     if next_position[1] >= self.track.shape[1] \
       or next_position[1] < 0 \
-      or -next_position[0] >= self.track.shape[0] \
-      or next_position[0] > 0 \
+      or next_position[0] >= self.track.shape[0] \
+      or next_position[0] < 0 \
       or RaceTrackEnv.OUT_CODE in crossed_states:
       
       if RaceTrackEnv.OUT_CODE in crossed_states \
         and next_position[1] < self.track.shape[1] \
         and next_position[1] >= 0 \
-        and -next_position[0] < self.track.shape[0] \
-        and next_position[0] <= 0:
+        and next_position[0] < self.track.shape[0] \
+        and next_position[0] >= 0:
         self.current_observation[next_position] = RaceTrackEnv.CAR_CODE
 
       info["status"] = "Out of track"
