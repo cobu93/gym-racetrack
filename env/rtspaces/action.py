@@ -6,10 +6,10 @@ class RaceTrackAction():
 
     def __init__(
         self, 
-        speed: int, 
         action: int,
         horizontal_moves: int, 
-        vertical_moves: int
+        vertical_moves: int,
+        speed: int = -1,
     ):
         self.speed = speed
         self.action = action
@@ -46,11 +46,11 @@ class RaceTrackMovementsSpace(gym.Space):
         horizontal_moves = current_speed - vertical_moves
         horizontal_moves *= random.choice([-1, 1])
 
-        return RaceTrackAction(
-            speed=current_speed, 
+        return RaceTrackAction( 
             action=speed_action,
             horizontal_moves=horizontal_moves, 
-            vertical_moves=-vertical_moves
+            vertical_moves=-vertical_moves,
+            speed=current_speed
         )
        
     def contains(self, x: RaceTrackAction) -> bool:
