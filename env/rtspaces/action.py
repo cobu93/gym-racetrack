@@ -46,12 +46,14 @@ class RaceTrackMovementsSpace(gym.Space):
         horizontal_moves = current_speed - vertical_moves
         horizontal_moves *= random.choice([-1, 1])
 
-        return RaceTrackAction( 
+        action = RaceTrackAction( 
             action=speed_action,
             horizontal_moves=horizontal_moves, 
             vertical_moves=-vertical_moves,
             speed=current_speed
         )
+
+        return action
        
     def contains(self, x: RaceTrackAction) -> bool:
         if x.action not in self.accepted_incrementals:
