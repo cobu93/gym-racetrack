@@ -90,8 +90,12 @@ class RaceTrackEnv(gym.Env):
     # Control variables
     #
     ########################################
-    self.current_speed = min_speed
-    self.current_state = None
+    
+    self.current_state = {
+      "speed": min_speed,
+      "y": None,
+      "x": None,
+    }
     self.last_action = None
     self.current_observation = None
     self.ignore_next_action = False
@@ -114,9 +118,9 @@ class RaceTrackEnv(gym.Env):
     info["keep_car_trace"] = self.keep_car_trace
 
     if not self.keep_car_trace:
-      value = self.track[self.current_state]
-      self.current_observation[self.current_state] = value
-      self.observation_image[self.current_state[0], self.current_state[1]] = self.color_map[value]
+      value = self.track[self.current_state["y"], self.current_state["x"]]
+      self.current_observation[self.current_state["y"], self.current_state["x"]] = value
+      self.observation_image[self.current_state["y"], self.current_state["x"]] = self.color_map[value]
 
     info["ignored_action"] = self.ignore_next_action
 
@@ -128,22 +132,22 @@ class RaceTrackEnv(gym.Env):
     
     info["speed_increment"] = action.action
 
-    current_speed = self.current_speed + action.action
-    self.current_speed = min(self.action_space.max_speed, max(self.action_space.min_speed, current_speed))
+    current_speed = self.current_state["speed"] + action.action
+    self.current_state["speed"] = min(self.action_space.max_speed, max(self.action_space.min_speed, current_speed))
 
-    action.speed = self.current_speed
+    action.speed = self.current_state["speed"]
 
     if not self.action_space.contains(action):
       raise ValueError("Given action is not valid")
     
-    info["current_speed"] = self.current_speed
+    info["current_speed"] = self.current_state["speed"]
 
     next_position = (
-      self.current_state[0] + action.vertical_moves,
-      self.current_state[1] + action.horizontal_moves
+      self.current_state["y"] + action.vertical_moves,
+      self.current_state["x"] + action.horizontal_moves
     )
 
-    info["from_position"] = self.current_state
+    info["from_position"] = (self.current_state["y"], self.current_state["x"])
     info["to_position"] = next_position
     
     info["horizontal_moves"] = action.horizontal_moves
@@ -151,24 +155,25 @@ class RaceTrackEnv(gym.Env):
 
     if action.horizontal_moves == 0:
       crossed_states = self.track[
-        min(self.current_state[0], next_position[0]):max(self.current_state[0], next_position[0]) + 1,
-        self.current_state[1]:self.current_state[1] + 1
+        min(self.current_state["y"], next_position[0]):max(self.current_state["y"], next_position[0]) + 1,
+        self.current_state["x"]:self.current_state["x"] + 1
       ].flatten()
 
     elif action.vertical_moves == 0:
       crossed_states = self.track[
-        self.current_state[0]:self.current_state[0] + 1,
-        min(self.current_state[1], next_position[1]):max(self.current_state[1], next_position[1]) + 1
+        self.current_state["y"]:self.current_state["y"] + 1,
+        min(self.current_state["x"], next_position[1]):max(self.current_state["x"], next_position[1]) + 1
       ].flatten()
     else:
       crossed_states = self.track[
-        min(self.current_state[0], next_position[0]):max(self.current_state[0], next_position[0]) + 1,
-        min(self.current_state[1], next_position[1]):max(self.current_state[1], next_position[1]) + 1
+        min(self.current_state["y"], next_position[0]):max(self.current_state["y"], next_position[0]) + 1,
+        min(self.current_state["x"], next_position[1]):max(self.current_state["x"], next_position[1]) + 1
       ].flatten()
 
     info["crossed_states"] =  crossed_states
     
-    self.current_state = next_position
+    self.current_state["y"] = next_position[0]
+    self.current_state["x"] = next_position[1]
 
     # If win
     if RaceTrackEnv.GOAL_CODE in crossed_states:
@@ -208,16 +213,14 @@ class RaceTrackEnv(gym.Env):
     
 
   def reset(self):
-    self.current_speed = self.action_space.min_speed
+    self.current_state["speed"] = self.action_space.min_speed
 
-    self.current_state = (
-      self.box_height - 1,
-      random.choice(np.where(self.track[-1] == RaceTrackEnv.TRACK_CODE)[0])      
-    )
+    self.current_state["y"] = self.box_height - 1
+    self.current_state["x"] = random.choice(np.where(self.track[-1] == RaceTrackEnv.TRACK_CODE)[0])
 
     self.last_action = None
     self.current_observation = np.copy(self.track)
-    self.current_observation[self.current_state] = RaceTrackEnv.CAR_CODE
+    self.current_observation[self.current_state["y"], self.current_state["x"]] = RaceTrackEnv.CAR_CODE
     self.ignore_next_action = False
 
     self.observation_image = np.zeros((*self.track.shape, 3), dtype=np.uint8)

@@ -35,7 +35,8 @@ class RaceTrackMovementsSpace(gym.Space):
         self.min_speed = min_speed
         self.accepted_incrementals = accepted_incrementals
     
-    def sample(self, current_speed) -> RaceTrackAction:
+    def sample(self, state) -> RaceTrackAction:
+        current_speed= state["speed"]
         """Randomly sample an element of this space. Can be
         uniform or non-uniform sampling based on boundedness of space."""
         speed_action = random.choice(self.accepted_incrementals)
