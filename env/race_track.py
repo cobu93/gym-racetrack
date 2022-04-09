@@ -92,6 +92,8 @@ class RaceTrackEnv(gym.Env):
     ########################################
     
     self.current_state = {
+      "min_speed": self.action_space.min_speed,
+      "max_speed": self.action_space.max_speed,
       "speed": min_speed,
       "y": None,
       "x": None,
