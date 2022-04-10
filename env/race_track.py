@@ -197,7 +197,8 @@ class RaceTrackEnv(gym.Env):
         self.current_observation[next_position] = RaceTrackEnv.CAR_CODE
 
       info["status"] = "Out of track"
-      return self.current_state, -1, True, info
+      self.reset()
+      return self.current_state, -1, False, info
 
     # If oil
     # If out of track
