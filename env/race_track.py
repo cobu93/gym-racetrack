@@ -180,6 +180,8 @@ class RaceTrackEnv(gym.Env):
     # If win
     if RaceTrackEnv.GOAL_CODE in crossed_states:
       info["status"] = "Goal crossed"
+      self.current_state["x"] = min(self.box_width - 1, self.current_state["x"])
+      self.current_state["y"] = max(0, self.current_state["y"])
       return self.current_state, 0, True, info
     
     # If out of track
